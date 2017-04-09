@@ -38,7 +38,7 @@ exports.create = function (api) {
   })
 
   function locale () {
-    return 'en-US'
+    return 'en'
   }
 
   function locales () {

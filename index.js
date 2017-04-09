@@ -53,7 +53,8 @@ exports.create = function (api) {
     const currentLocale = getLocale()
     const currentLocales = getLocales()
     const currentFormats = getFormats()
-    if (is.undefined(formatters[messageKey])) {
+    if (is.undefined(formatters[currentLocale])) formatters[currentLocale] = {}
+    if (is.undefined(formatters[currentLocale][messageKey])) {
       if (is.undefined(currentLocales[currentLocale])) {
         throw new Error(`patch-intl: ${currentLocale} locale not found in locales`)
       }
@@ -61,9 +62,9 @@ exports.create = function (api) {
         throw new Error(`patch-intl: ${messageKey} message not found in ${currentLocale} messages`)
       }
       const message = currentLocales[currentLocale][messageKey]
-      formatters[messageKey] = new IntlMessageFormat(message, currentLocale, currentFormats)
+      formatters[currentLocale][messageKey] = new IntlMessageFormat(message, currentLocale, currentFormats)
     }
-    return formatters[messageKey].format(value)
+    return formatters[currentLocale][messageKey].format(value)
   }
 
   function formatNumber () {} // TODO

@@ -1,3 +1,3 @@
-module.exports = {
-  'en-US': require('./en-US')
-}
+const bulk = require('bulk-require')
+
+module.exports = bulk(__dirname, '*.js')

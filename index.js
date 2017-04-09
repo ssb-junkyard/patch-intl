@@ -2,7 +2,7 @@ const is = require('typeof-is')
 const nest = require('depnest')
 const IntlMessageFormat = require('intl-messageformat')
 
-exports.gives = nest('intl', [
+exports.gives = nest('intl.sync', [
   'locale',
   'locales',
   'formats',
@@ -12,7 +12,7 @@ exports.gives = nest('intl', [
   'formatRelativeTime'
 ])
 
-exports.needs = nest('intl', {
+exports.needs = nest('intl.sync', {
   locale: 'first',
   locales: 'reduce',
   formats: 'reduce'
@@ -23,11 +23,11 @@ exports.create = function (api) {
     locale: getLocale,
     locales: getLocales,
     formats: getFormats
-  } = api.intl
+  } = api.intl.sync
 
   var formatters = {}
 
-  return nest('intl', {
+  return nest('intl.sync', {
     locale,
     locales,
     formats,

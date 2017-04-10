@@ -61,7 +61,11 @@ exports.create = function (api) {
       if (is.undefined(currentLocales[currentLocale][messageKey])) {
         throw new Error(`patch-intl: ${messageKey} message not found in ${currentLocale} messages`)
       }
-      const message = currentLocales[currentLocale][messageKey]
+      var message
+      eachLocale(currentLocale, nextLocale => {
+        message = currentLocales[nextLocale][messageKey]
+        if (message) return false // stop iterating on sub locales
+      })
       formatters[currentLocale][messageKey] = new IntlMessageFormat(message, currentLocale, currentFormats)
     }
     return formatters[currentLocale][messageKey].format(value)
@@ -70,4 +74,15 @@ exports.create = function (api) {
   function formatNumber () {} // TODO
   function formatDate () {} // TODO
   function formatRelativeTime () {} // TODO
+}
+
+// iterate through locale and parent locales
+// for example: en-US -> en
+function eachLocale (locale, fn) {
+  if (fn(locale) === false) return
+  if (locale.indexOf('-') === -1) return
+  const localeTags = locale.split('-')
+  const parentLocaleTags = localeTags.slice(0, localeTags - 1)
+  const parentLocale = parentLocaleTags.join('-')
+  forEachSubLocale(parentLocale, fn)
 }

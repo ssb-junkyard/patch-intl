@@ -66,7 +66,6 @@ exports.create = function (api) {
         else if (is.undefined(currentLocales[nextLocale][messageKey])) continue
         else {
           message = currentLocales[nextLocale][messageKey]
-          console.log('nextLocale', nextLocale, message)
           break
         }
       }

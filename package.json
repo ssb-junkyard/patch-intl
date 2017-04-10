@@ -1,6 +1,6 @@
 {
   "name": "patch-intl",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "internationalization (i18n) for Scuttlebutt / Patch(work)",
   "main": "index.js",
   "scripts": {

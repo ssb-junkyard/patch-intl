@@ -41,12 +41,12 @@ exports.create = function (api) {
     return 'en'
   }
 
-  function locales () {
-    return require('./locales')
+  function locales (sofar = {}) {
+    return sofar
   }
 
-  function formats () {
-    return require('./formats')
+  function formats (sofar = {}) {
+    return sofar
   }
 
   function format (messageKey, value) {
@@ -55,17 +55,24 @@ exports.create = function (api) {
     const currentFormats = getFormats()
     if (is.undefined(formatters[currentLocale])) formatters[currentLocale] = {}
     if (is.undefined(formatters[currentLocale][messageKey])) {
-      if (is.undefined(currentLocales[currentLocale])) {
+      const subLocales = getSubLocales(currentLocale)
+      if (!subLocales.some(nextLocale => !is.undefined(currentLocales[nextLocale]))) {
         throw new Error(`patch-intl: ${currentLocale} locale not found in locales`)
       }
-      if (is.undefined(currentLocales[currentLocale][messageKey])) {
+      var message
+      for (var i = 0; i < subLocales.length; i++) {
+        const nextLocale = subLocales[i]
+        if (is.undefined(currentLocales[nextLocale])) continue
+        else if (is.undefined(currentLocales[nextLocale][messageKey])) continue
+        else {
+          message = currentLocales[nextLocale][messageKey]
+          console.log('nextLocale', nextLocale, message)
+          break
+        }
+      }
+      if (is.undefined(message)) {
         throw new Error(`patch-intl: ${messageKey} message not found in ${currentLocale} messages`)
       }
-      var message
-      eachLocale(currentLocale, nextLocale => {
-        message = currentLocales[nextLocale][messageKey]
-        if (message) return false // stop iterating on sub locales
-      })
       formatters[currentLocale][messageKey] = new IntlMessageFormat(message, currentLocale, currentFormats)
     }
     return formatters[currentLocale][messageKey].format(value)
@@ -77,12 +84,15 @@ exports.create = function (api) {
 }
 
 // iterate through locale and parent locales
-// for example: en-US -> en
-function eachLocale (locale, fn) {
-  if (fn(locale) === false) return
-  if (locale.indexOf('-') === -1) return
-  const localeTags = locale.split('-')
-  const parentLocaleTags = localeTags.slice(0, localeTags - 1)
-  const parentLocale = parentLocaleTags.join('-')
-  forEachSubLocale(parentLocale, fn)
+// for example: en-US -> [en-US, en]
+function getSubLocales (locale) {
+  var subLocales = [locale]
+  while (locale.indexOf('-') !== -1) {
+    const localeTags = locale.split('-')
+    const parentLocaleTags = localeTags.slice(0, localeTags.length - 1)
+    const parentLocale = parentLocaleTags.join('-')
+    subLocales.push(parentLocale)
+    locale = parentLocale
+  }
+  return subLocales
 }
